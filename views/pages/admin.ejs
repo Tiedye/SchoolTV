@@ -1,10 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+    <%- include('../partials/head', { title: 'Admin Panel' }) %>
+    <script>
+        function login(){
+            $.post('login', {username: $('#username').val(), password: $('#password').val()}, function(data, status, jqXHR){
+                if(status !== 'success') {
+                    $('#error').text("Could not communicate with the server. ("+status+")");
+                }else if(data.hasOwnProperty('error')){
+                    $('#error').text(data.error);
+                }else{
+                    location.reload();
+                }
+            }, 'json');
+            $('#error').text("Loading...");
+            $('#error').css('display', 'block');
+        }
+        $(document).ready(function() {
+            $('.settings-form').submit(function (event) {
+                event.preventDefault();
+                $.post('admin', $(event.target).serialize(), function(data, status, jqXHR){
 
+                });
+            });
+            $('.file-form').submit(function (event) {
+                event.preventDefault();
+            })
+        });
+    </script>
+</head>
+<body class="screen_fill admin">
+<div id="left-box">
+    <header>NHS TV</header>
+    <ul>
+        <li class="selected">Announcements</li>
+        <li>Important Dates</li>
+        <li>Main Area</li>
+        <li>Twitter Settings</li>
+        <li>User Settings</li>
+    </ul>
+</div>
+<div id="right-box">
+
+</div>
 </body>
 </html>
