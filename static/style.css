@@ -85,6 +85,10 @@ ol ol li {
     list-style-type: lower-alpha;
 }
 
+ul li {
+    list-style-type: square;
+}
+
 .screen_center {
     position: absolute;
     display: flex;
@@ -94,7 +98,7 @@ ol ol li {
     justify-content: center;
 }
 
-#login-box{
+#box-login{
     width: 250px;
     border: none;
     border-radius: 8px;
@@ -102,18 +106,18 @@ ol ol li {
     padding: 15px;
     text-align: center;
 }
-#login-box header {
+#box-login header {
     font-size: 110%;
     font-weight: bold;
     margin-bottom: 8px;
 }
-#login-box input[type='text'], #login-box input[type='password'] {
+#box-login input[type='text'], #box-login input[type='password'] {
     padding: 3px;
     font-size: 90%;
     width: 100%;
     margin-bottom: 5px;
 }
-#login-box #error {
+#box-login #error {
     margin-top: 10px;
     font-style: italic;
     color: red;
@@ -128,29 +132,29 @@ ol ol li {
     align-items: stretch;
 }
 
-.display #left-box {
+.display #box-left {
     display: flex;
     flex-flow: column nowrap;
     align-items: stretch;
     flex: 3 3 0;
 }
-.display #right-box {
+.display #box-right {
     display: flex;
     flex-flow: column nowrap;
     align-items: stretch;
     flex: 1 1 0;
 }
 
-#main-box {
+#box-main {
     flex: 3 3 0;
 }
-#announcement-box {
+#box-announcement {
     flex: 1 1 0;
 }
-#important-box{
+#box-important{
     flex: 1 1 0;
 }
-#twitter-box{
+#box-twitter{
     flex: 2 2 0;
 }
 
@@ -164,33 +168,31 @@ ol ol li {
 }
 
 
-.admin #left-box {
+.admin #box-left {
     flex: 0 0 0;
     background-color: #43505b;
     color: white;
-}
-.admin #right-box {
-    flex: 3 3 0;
 }
 .admin > div > header {
     font-size: 200%;
     padding: 25px;
 }
-.admin #left-box > ul {
+.admin #box-left > ul {
     list-style: none;
     font-weight: 200;
     width: 100%;
 }
-.admin #left-box > ul > li {
+.admin #box-left > ul > li {
     width: 100%;
     margin: 0;
     padding: 8px 25px;
     position: relative;
+    cursor: pointer;
 }
-.admin #left-box > ul > .selected {
+.admin #box-left > ul > li.active {
     background-color: #5d7280;
 }
-.admin #left-box > ul > .selected::before {
+.admin #box-left > ul > li.active::before {
     content: ' ';
     background-color: #ff9200;
     height: 100%;
@@ -199,4 +201,120 @@ ol ol li {
     position: absolute;
     left: 0;
     top: 0;
+}
+.admin #box-right {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: stretch;
+    flex: 1 1 0;
+}
+
+.admin #box-content {
+    flex: 1 1 0;
+    position: relative;
+}
+.admin #box-submit {
+    flex: 0 0 0;
+}
+.admin #box-submit #save-btn{
+    position: relative;
+    float: right;
+    display: block;
+    margin: 10px 30px 10px;
+    padding: 0 15px;
+}
+.admin .settings-view {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: auto;
+    visibility: hidden;
+    padding: 50px;
+}
+.admin .settings-view.active {
+    visibility: visible;
+}
+
+h1 {
+    font-size: 250%;
+}
+h2 {
+    font-size: 210%;
+}
+h3 {
+    font-size: 180%;
+}
+h4 {
+    font-size: 155%;
+}
+h5 {
+    font-size: 130%;
+}
+h6 {
+    font-size: 112%;
+}
+h1, h2, h3 {
+    font-weight: 600;
+}
+h1, h2, h3, h4, h5, h6 {
+    padding-bottom: 0.2em;
+}
+p{
+    padding-bottom: 1em;
+}
+strong {
+    font-weight: 600;
+}
+code {
+    font-family: monospace;
+}
+
+.admin #in-announcement {
+    width: 400px;
+    height: 250px;
+    padding: 5px;
+    font-family: monospace;
+}
+.admin #out-announcement {
+    resize: both;
+    overflow: auto;
+    border: solid 1px black;
+    position: relative;
+    width: 400px;
+    height: 250px;
+    padding: 15px;
+}
+.admin ins {
+    font-style: italic;
+    font-weight: 300;
+    background: none;
+    display: block;
+}
+.admin #in-date tr {
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.4);
+    border-radius: 3px;
+}
+.admin #in-date td {
+    white-space: nowrap;
+    height: 50px;
+    max-height: 50px;
+    padding: 5px;
+}
+.admin .input-area {
+    float: left;
+    margin-right: 15px;
+}
+.admin .output-area {
+    float: left;
+}
+
+
+
+.sqr-btn {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    background-color: grey;
 }
