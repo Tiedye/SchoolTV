@@ -1,0 +1,16 @@
+<div id="settings-twitter" class="settings-view">
+    <script>
+        $(document).ready(function () {
+
+            $('#settings-twitter').on('updateState', function () {
+                $('#in-twitter-link').val(currentState.twitterListID);
+            });
+            $('#settings-twitter').on('saveState', function () {
+                currentState.twitterListID = $('#in-twitter-link').val();
+            });
+        });
+    </script>
+    <h1>Twitter Feed</h1>
+    <label for="in-twitter-link">Twitter widget code (fairly technical, create widget <a href="https://twitter.com/settings/widgets">here</a> and extract code from link):</label>
+    <input type="text" id="in-twitter-link">
+</div>

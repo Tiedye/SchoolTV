@@ -27,6 +27,56 @@
             });
         });
     </script>
+    <script>
+        var currentState = {};
+        var scrollInt;
+
+        function loadData(){
+            $.post('get', {}, function (data, status, jqXHR) {
+                if(status !== 'success') {
+                    $('#message').text("Could not communicate with the server. ("+status+")");
+                }else if(data.hasOwnProperty('error')){
+                    $('#message').text(data.error);
+                }else {
+                    currentState = data;
+
+                    var $scroller = $('#scroller');
+                    $scroller.html(marked(data.announcements));
+                    var dH = $scroller.height() - $('#box-announcement').height();
+                    var time = ($scroller.height()+$('#box-announcement').height())*25;
+                    if(dH > 0){
+                        $scroller.stop(true, true);
+                        $scroller.css({'top': $('#box-announcement').height()});
+                        $scroller.animate({'top': -$scroller.height()}, time, 'linear', function(){});
+                        scrollInt = setInterval(function(){
+                            $scroller.stop(true, true);
+                            $scroller.css({'top': $('#box-announcement').height()});
+                            $scroller.animate({'top': -$scroller.height()}, time, 'linear', function(){});
+                        }, time);
+                    }
+                    var monthNames = [
+                        "January", "February", "March",
+                        "April", "May", "June", "July",
+                        "August", "September", "October",
+                        "November", "December"
+                    ];
+                    var $dates = $('#box-important');
+                    data.importantDates.forEach(function (d) {
+                        var event = $('<div>');
+                        event.addClass('event');
+                        var date = new Date(d.date);
+                        event.html(monthNames[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear() + ":  " + d.description);
+                        $dates.append(event);
+                    });
+
+                }
+            }, 'json');
+        }
+
+        $(document).ready(function () {
+            loadData();
+        });
+    </script>
 </head>
 <body class="screen_fill display">
 <div id="box-left">
@@ -34,7 +84,9 @@
 
     </div>
     <div id="box-announcement">
+    <div id="scroller">
 
+    </div>
     </div>
 </div>
 <div id="box-right">

@@ -2,28 +2,68 @@
 <html>
 <head lang="en">
     <%- include('../partials/head', { title: 'Admin Panel' }) %>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
     <script>
+
+        var currentState = {};
+
+        function loadData(){
+            $.post('get', {}, function (data, status, jqXHR) {
+                if(status !== 'success') {
+                    $('#message').text("Could not communicate with the server. ("+status+")");
+                }else if(data.hasOwnProperty('error')){
+                    $('#message').text(data.error);
+                }else {
+                    currentState = data;
+                    $('.settings-view').trigger('updateState');
+                }
+            }, 'json');
+        }
+
         function clearSelection(){
             $('#menu li, .settings-view').removeClass('active');
         }
         function selectMenu(sel){
+            $pane = $('#option-'+sel+', #settings-'+sel);
+            if ($pane.length == 0) sel = 'announcement';
+            window.location.hash = '#' + sel;
             clearSelection();
-            $('#option-'+sel+', #settings-'+sel).addClass('active');
+            $pane.addClass('active');
         }
         $(document).ready(function() {
+            $('#logout-btn').click(function (e){
+                $.post('logout', {}, function (data, status, jqXHR) {
+                    if (status !== 'success') {
+                        $('#message').text("Could not communicate with the server. (" + status + ")");
+                    } else if (data.hasOwnProperty('error')) {
+                        $('#message').text(data.error);
+                    } else {
+                        location.reload();
+                    }
+                }, 'json');
+            });
             $('#save-btn').click(function (e){
-
+                $.when($('.settings-view').trigger('saveState')).done( function() {
+                    $.post('set', {newState:currentState}, function (data, status, jqXHR) {
+                        if (status !== 'success') {
+                            $('#message').text("Could not communicate with the server. (" + status + ")");
+                        } else if (data.hasOwnProperty('error')) {
+                            $('#message').text(data.error);
+                        } else {
+                            $('#message').text('Settings Saved.')
+                        }
+                    }, 'json');
+                });
             });
 
             $('#menu li').click(function (e) {
                 selectMenu($(e.target).attr('id').match(/[a-z]+$/));
             });
-            selectMenu('announcement');
-
-            $('#in-announcement').bind('input propertychange', function () {
-                $('#out-announcement').html(marked($('#in-announcement').val().replace(/</g, '&lt;').replace(/>/g, '&gt;')));
+            selectMenu(window.location.hash.substr(1));
+            $(window).on('hashchange', function(){
+                selectMenu(window.location.hash.substr(1));
             });
-            $('#out-announcement').html(marked($('#in-announcement').val()));
         });
     </script>
 </head>
@@ -36,60 +76,26 @@
         <li id="option-main">Main Area</li>
         <li id="option-twitter">Twitter Settings</li>
         <li id="option-user">User Settings</li>
-        <li id="option-backup">Reset/Backup</li>
+        <li id="option-backup">Reset</li>
     </ul>
 </div>
 <div id="box-right">
     <div id="box-content">
-        <div id="settings-announcement" class="settings-view">
-            <h1>Announcements</h1>
-            <br>
-            <h4>Content</h4>
-            <br>
-            <div class="input-area">
-                <textarea id="in-announcement"></textarea>
-                <ins>This content is markdown enabled.</ins>
-                <br>
-            </div>
-            <div class="output-area">
-                <div id="out-announcement"></div>
-            </div>
-        </div>
-        <div id="settings-important" class="settings-view">
-            <h1>Important Dates</h1>
-            <br>
-            <table id="date-table">
-                <thead><td>Date</td><td>Event</td></thead>
-                <tbody id="in-date">
-                    <tr>
-                        <td><input type="date"></td>
-                        <td><textarea></textarea></td>
-                        <td>
-                            <span class="sqr-btn up"></span>
-                            <span class="sqr-btn down"></span>
-                            <span class="sqr-btn remove"></span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <input type="button" id="add-date">
-        </div>
-        <div id="settings-main" class="settings-view">
-            <p>ASdasd</p>
-        </div>
-        <div id="settings-twitter" class="settings-view">
-
-        </div>
-        <div id="settings-user" class="settings-view">
-
-        </div>
-        <div id="settings-backup" class="settings-view">
-
-        </div>
+        <%- include('../partials/settings-announcement', {}) %>
+        <%- include('../partials/settings-important', {}) %>
+        <%- include('../partials/settings-main', {}) %>
+        <%- include('../partials/settings-twitter', {}) %>
+        <%- include('../partials/settings-user', {}) %>
+        <%- include('../partials/settings-backup', {}) %>
     </div>
     <div id="box-submit">
         <input type="button" id="save-btn" value="Save">
+        <div id="message"></div>
+        <input type="button" id="logout-btn" value="Logout">
     </div>
 </div>
+<script>
+    loadData();
+</script>
 </body>
 </html>

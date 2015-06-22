@@ -1,0 +1,26 @@
+<div id="settings-announcement" class="settings-view">
+    <script>
+        $(document).ready(function () {
+            $('#in-announcement').on('input propertychange', function () {
+                $('#out-announcement').html(marked($('#in-announcement').val().replace(/</g, '&lt;').replace(/>/g, '&gt;')));
+            });
+            $('#settings-announcement').on('updateState', function () {
+                $('#in-announcement').val(currentState.announcements);
+                $('#in-announcement').trigger('propertychange');
+            });
+            $('#settings-announcement').on('saveState', function () {
+                currentState.announcements = $('#in-announcement').val();
+            });
+        });
+    </script>
+    <h1>Announcements</h1>
+    <h4>Content</h4>
+    <div class="input-area">
+        <textarea id="in-announcement"></textarea>
+        <ins>This content is markdown enabled.</ins>
+        <br>
+    </div>
+    <div class="output-area">
+        <div id="out-announcement"></div>
+    </div>
+</div>

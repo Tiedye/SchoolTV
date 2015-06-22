@@ -1,0 +1,32 @@
+<div id="settings-user" class="settings-view">
+    <script>
+        $(document).ready(function() {
+            $('#password-form').submit(function (event) {
+                event.preventDefault();
+                $.post('password-reset', {oldPassword: $('#old-password').val(), newPassword: $('#new-password').val(), newPasswordRepeat: $('#new-password-repeat').val()}, function(data, status, jqXHR){
+                    if(status !== 'success') {
+                        $('#message').text("Could not communicate with the server. ("+status+")");
+                    }else if(data.hasOwnProperty('error')){
+                        $('#message').text(data.error);
+                    }else{
+                        $('#message').text('Password successfully reset.');
+                        $('#old-password').val('');
+                        $('#new-password').val('');
+                        $('#new-password-repeat').val('');
+                    }
+                }, 'json');
+            });
+        });
+    </script>
+    <h1>Change Password</h1>
+    <form id="password-form">
+        <label for="old-password">Old password:</label>
+        <input type="password" id="old-password"><br>
+        <label for="new-password">New password:</label>
+        <input type="password" id="new-password"><br>
+        <label for="new-password-repeat">Confirm password:</label>
+        <input type="password" id="new-password-repeat">
+        <br><br>
+        <input type="submit" value="Go">
+    </form>
+</div>

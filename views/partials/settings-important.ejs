@@ -1,0 +1,68 @@
+<div id="settings-important" class="settings-view">
+    <div id="event-template" style="display: none;">
+        <div class="event item">
+            <div>
+                <input class="event-date" type="date">
+            </div>
+            <div class="separator"></div>
+            <div>
+                <textarea class="event-description"></textarea>
+            </div>
+            <div class="separator"></div>
+            <div>
+                <span class="sqr-btn up" style="background-image: url('/static/images/up.png')"></span>
+                <span class="sqr-btn down" style="background-image: url('/static/images/down.png')"></span>
+                <span class="sqr-btn remove" style="background-image: url('/static/images/cross.png')"></span>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $('#in-date').on('click', '.up', function(){
+                $p = $(this).parents('.event');
+                $p.insertBefore($p.prev());
+            });
+            $('#in-date').on('click', '.down', function(){
+                $p = $(this).parents('.event');
+                $p.insertAfter($p.next());
+            });
+            $('#in-date').on('click', '.remove', function(){
+                $(this).parents('.event').remove();
+            });
+
+            function newDate(date, description) {
+                var $event = $('#event-template > div').clone();
+                $event.find('input[type=date]').datepicker({dateFormat: 'yy-mm-dd'});
+                $event.find('.event-date').val(date);
+                $event.find('.event-description').val(description);
+                $('#in-date').append($event);
+            }
+
+            $('#new-date').click(function(){
+                newDate('','');
+            });
+
+            $('#settings-important').on('updateState', function () {
+                $('#in-date > div').remove();
+                currentState.importantDates.forEach(function(d){
+                    newDate(d.date, d.description);
+                });
+            });
+            $('#settings-important').on('saveState', function () {
+                currentState.importantDates = [];
+                $('#in-date .event').each(function(index){
+                    var date = {};
+                    date.date = $(this).find('input[type=date]').val();
+                    date.description = $(this).find('.event-description').val();
+                    currentState.importantDates.push(date);
+                });
+            });
+        });
+    </script>
+    <h1>Important Dates</h1>
+    <div id="in-date" class="list">
+    </div>
+    <div>
+        <span class="txt-btn" id="new-date">New Date</span>
+    </div>
+</div>

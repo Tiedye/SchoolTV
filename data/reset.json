@@ -1,10 +1,11 @@
 {
-  "announcements":"",
-  "importantDates":[],
-  "twitterListID":0,
-  "mainArea":{
-    "mode":"youtube",
-    "youtubeLink":"",
-    "slides":[]
+  "announcements": "",
+  "importantDates": [],
+  "twitterListID": "0",
+  "mainArea": {
+    "mode": "slides",
+    "youtubeLink": "",
+    "slides": [],
+    "delay": 5
   }
 }

@@ -3,23 +3,20 @@
 <head lang="en">
     <%- include('../partials/head', { title: 'Login' }) %>
     <script>
-        function login(){
-            $.post('login', {username: $('#username').val(), password: $('#password').val()}, function(data, status, jqXHR){
-                if(status !== 'success') {
-                    $('#error').text("Could not communicate with the server. ("+status+")");
-                }else if(data.hasOwnProperty('error')){
-                    $('#error').text(data.error);
-                }else{
-                    location.reload();
-                }
-            }, 'json');
-            $('#error').text("Loading...");
-            $('#error').css('display', 'block');
-        }
         $(document).ready(function() {
             $('#login-form').submit(function (event) {
                 event.preventDefault();
-                login();
+                $.post('login', {username: $('#username').val(), password: $('#password').val()}, function(data, status, jqXHR){
+                    if(status !== 'success') {
+                        $('#error').text("Could not communicate with the server. ("+status+")");
+                    }else if(data.hasOwnProperty('error')){
+                        $('#error').text(data.error);
+                    }else{
+                        location.reload();
+                    }
+                }, 'json');
+                $('#error').text("Loading...");
+                $('#error').css('display', 'block');
             });
         });
     </script>

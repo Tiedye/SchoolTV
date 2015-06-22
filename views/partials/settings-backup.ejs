@@ -1,0 +1,25 @@
+<div id="settings-backup" class="settings-view">
+    <script>
+        $(document).ready(function() {
+            $('#reset-form').submit(function (event) {
+                event.preventDefault();
+                if(confirm('Are you sure?')) {
+                    $.post('reset', {}, function (data, status, jqXHR) {
+                        if (status !== 'success') {
+                            $('#message').text("Could not communicate with the server. (" + status + ")");
+                        } else if (data.hasOwnProperty('error')) {
+                            $('#message').text(data.error);
+                        } else {
+                            $('#message').text('Settings reset.');
+                            loadData();
+                        }
+                    }, 'json');
+                }
+            });
+        });
+    </script>
+    <h1>Reset Everything (except passwords)</h1>
+    <form id="reset-form">
+        <input type="submit" value="Reset">
+    </form>
+</div>
