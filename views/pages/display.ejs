@@ -194,8 +194,8 @@
                     if (data.mainArea.mode == 'slides'){
                         $('#youtube').css('visibility', 'hidden');
                         $('#slides').css('visibility', 'visible');
-                        player.pauseVideo();
                         player.seekTo(0);
+                        player.pauseVideo();
                     }else if(data.mainArea.mode == 'youtube'){
                         $('#youtube').css('visibility', 'visible');
                         $('#slides').css('visibility', 'hidden');
