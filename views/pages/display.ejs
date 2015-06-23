@@ -3,6 +3,35 @@
 <head lang="en">
     <%- include('../partials/head', { title: 'NHS TV' }) %>
     <script>
+        // check for arral equality
+        Array.prototype.equals = function (array) {
+            // if the other array is a falsy value, return
+            if (!array)
+                return false;
+
+            // compare lengths - can save a lot of time
+            if (this.length != array.length)
+                return false;
+
+            for (var i = 0, l=this.length; i < l; i++) {
+                // Check if we have nested arrays
+                if (this[i] instanceof Array && array[i] instanceof Array) {
+                    // recurse into the nested arrays
+                    if (!this[i].equals(array[i]))
+                        return false;
+                }
+                else if (this[i] != array[i]) {
+                    // Warning - two different object instances will never be equal: {x:20} != {x:20}
+                    return false;
+                }
+            }
+            return true;
+        }
+    </script>
+    <script>
+        // since initial page load time is not an object, page loading is not at all optimized
+
+        // start loading twitter object
         window.twttr = (function (d, s, id) {
             var js, fjs = d.getElementsByTagName(s)[0],
                     t = window.twttr || {};
@@ -21,16 +50,65 @@
         }(document, "script", "twitter-wjs"));
     </script>
     <script>
+        // when twitter object is ready, start loading youtube object
         twttr.ready(function(){
-            twttr.widgets.createTimeline('608702895299637249', document.getElementById('box-twitter'), {
-                chrome: 'noscrollbar transparent noheader'
+            $(document).ready(function () {
+                if ( $.isReady ) {
+                    initFrame();
+                }else{
+                    $(document).ready(function (){
+                        initFrame();
+                    });
+                }
             });
         });
     </script>
     <script>
-        var currentState = {};
         var scrollInt;
 
+        var player;
+        var videoID = "";
+
+        var slideIndex = 0;
+        var slides = [];
+
+        var interval;
+
+        // when the youtube object is ready, create the player
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: $('#youtube').height(),
+                width: $('#youtube').width(),
+                playerVars: {
+                    // hide the controls
+                    controls: 0
+                },
+                events: {
+                    'onReady': function () {
+                        // load the data
+                        loadData();
+                        setInterval(loadData, 600000);
+                    },
+                    'onStateChange': function(e){
+                        // loops video
+                        if (e.data === YT.PlayerState.ENDED) {
+                            player.playVideo();
+                        }
+                    }
+                }
+            });
+        }
+
+        // start loading the youtube object
+        function initFrame(){
+            var tag = document.createElement('script');
+
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
+
+        // loads the data into the display
         function loadData(){
             $.post('get', {}, function (data, status, jqXHR) {
                 if(status !== 'success') {
@@ -38,22 +116,24 @@
                 }else if(data.hasOwnProperty('error')){
                     $('#message').text(data.error);
                 }else {
-                    currentState = data;
-
+                    // announcements
                     var $scroller = $('#scroller');
                     $scroller.html(marked(data.announcements));
                     var dH = $scroller.height() - $('#box-announcement').height();
-                    var time = ($scroller.height()+$('#box-announcement').height())*25;
+                    var time = ($scroller.height() + $('#box-announcement').height())*100;
                     if(dH > 0){
                         $scroller.stop(true, true);
                         $scroller.css({'top': $('#box-announcement').height()});
                         $scroller.animate({'top': -$scroller.height()}, time, 'linear', function(){});
+                        clearInterval(scrollInt);
                         scrollInt = setInterval(function(){
                             $scroller.stop(true, true);
                             $scroller.css({'top': $('#box-announcement').height()});
                             $scroller.animate({'top': -$scroller.height()}, time, 'linear', function(){});
                         }, time);
                     }
+
+                    // important dates
                     var monthNames = [
                         "January", "February", "March",
                         "April", "May", "June", "July",
@@ -61,27 +141,80 @@
                         "November", "December"
                     ];
                     var $dates = $('#box-important');
+                    $('#box-important > *').remove();
                     data.importantDates.forEach(function (d) {
                         var event = $('<div>');
                         event.addClass('event');
                         var date = new Date(d.date);
-                        event.html(monthNames[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear() + ":  " + d.description);
+                        event.html('<div class="date">' + monthNames[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear() + '</div><div class="description">' + d.description + '</div>');
                         $dates.append(event);
                     });
 
+                    // twitter
+                    $('#box-twitter > *').remove();
+
+                    twttr.widgets.createTimeline(data.twitterListID, document.getElementById('box-twitter'), {
+                        chrome: 'noscrollbar transparent noheader'
+                    });
+
+
+                    // main area
+                    // video
+                    if (videoID != data.mainArea.youtubeLink) {
+                        player.cueVideoById(data.mainArea.youtubeLink, 0, 'large');
+                        videoID = data.mainArea.youtubeLink;
+                    }
+
+                    // slides
+                    if (!slides.equals(data.mainArea.slides)) {
+                        $('#slides > *').remove();
+
+                        data.mainArea.slides.forEach(function (d) {
+                            var slide = $('<div>');
+                            slide.addClass('slide');
+                            slide.css({'background-image': 'url(' + d + ')'});
+                            $('#slides').append(slide);
+                        });
+
+                        clearInterval(interval);
+                        slideIndex = 0;
+
+                        var $slides = $('.slide');
+                        $slides.removeClass('active');
+                        slideIndex = (slideIndex + 1)%$slides.length;
+                        $slides.eq(slideIndex).addClass('active');
+                        interval = setInterval(function () {
+                            var $slides = $('.slide');
+                            $slides.removeClass('active');
+                            slideIndex = (slideIndex + 1)%$slides.length;
+                            $slides.eq(slideIndex).addClass('active');
+                        }, data.mainArea.delay*1000);
+                    }
+
+                    if (data.mainArea.mode == 'slides'){
+                        $('#youtube').css('visibility', 'hidden');
+                        $('#slides').css('visibility', 'visible');
+                        player.pauseVideo();
+                        player.seekTo(0);
+                    }else if(data.mainArea.mode == 'youtube'){
+                        $('#youtube').css('visibility', 'visible');
+                        $('#slides').css('visibility', 'hidden');
+                        player.setSize($('#youtube').width(), $('#youtube').height());
+                        player.playVideo();
+                    }
                 }
             }, 'json');
         }
 
-        $(document).ready(function () {
-            loadData();
-        });
     </script>
 </head>
 <body class="screen_fill display">
 <div id="box-left">
     <div id="box-main">
-
+        <div id="slides"></div>
+        <div id="youtube">
+            <div id="player"></div>
+        </div>
     </div>
     <div id="box-announcement">
     <div id="scroller">

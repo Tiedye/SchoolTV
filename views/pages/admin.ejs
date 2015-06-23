@@ -8,6 +8,7 @@
 
         var currentState = {};
 
+        // loads the state
         function loadData(){
             $.post('get', {}, function (data, status, jqXHR) {
                 if(status !== 'success') {
@@ -21,6 +22,7 @@
             }, 'json');
         }
 
+        // side menu functionality
         function clearSelection(){
             $('#menu li, .settings-view').removeClass('active');
         }
@@ -32,7 +34,9 @@
             $pane.addClass('active');
         }
         $(document).ready(function() {
+            // logout button
             $('#logout-btn').click(function (e){
+                $('#message').text('Logging out...');
                 $.post('logout', {}, function (data, status, jqXHR) {
                     if (status !== 'success') {
                         $('#message').text("Could not communicate with the server. (" + status + ")");
@@ -43,15 +47,19 @@
                     }
                 }, 'json');
             });
+            // save button
             $('#save-btn').click(function (e){
+                $('#message').text('Saving...');
+                // triggers the save state event, which allows each setting page to save its self to the state
                 $.when($('.settings-view').trigger('saveState')).done( function() {
+                    // sends the new state to the server
                     $.post('set', {newState:currentState}, function (data, status, jqXHR) {
                         if (status !== 'success') {
                             $('#message').text("Could not communicate with the server. (" + status + ")");
                         } else if (data.hasOwnProperty('error')) {
                             $('#message').text(data.error);
                         } else {
-                            $('#message').text('Settings Saved.')
+                            $('#message').text('Settings Saved.');
                         }
                     }, 'json');
                 });
@@ -61,6 +69,8 @@
                 selectMenu($(e.target).attr('id').match(/[a-z]+$/));
             });
             selectMenu(window.location.hash.substr(1));
+
+            // allows for page sublocations
             $(window).on('hashchange', function(){
                 selectMenu(window.location.hash.substr(1));
             });
